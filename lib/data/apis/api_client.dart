@@ -3,15 +3,23 @@ import 'dart:convert';
 import 'package:api_client_example/data/apis/requests/request.dart';
 import 'package:http/http.dart' as http;
 
-class ApiClient {
+class ApiCore {
   final http.Client _client = http.Client();
   final Duration _timeLimit = const Duration(seconds: 30);
+
+  Future<http.Response> send(http.Request req) async {
+    return http.Response.fromStream(
+        await _client.send(req).timeout(_timeLimit));
+  }
+}
+
+class ApiClient {
+  final api = ApiCore();
 
   Future<http.Response> execute(Request req) async {
     final http.Request request = await _build(req);
     try {
-      final response = await http.Response.fromStream(
-          await _client.send(request).timeout(_timeLimit));
+      final response = await api.send(request);
       if (200 <= response.statusCode && response.statusCode <= 299) {
         return response;
       } else {
@@ -35,7 +43,7 @@ class ApiClient {
   }
 
   Exception _createException(http.Response res) {
-    // なんかしら業務エラー
+    // Business Logic
     return Exception({res.body});
   }
 }
