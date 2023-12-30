@@ -7,7 +7,7 @@ class ApiCore {
   final http.Client _client = http.Client();
   final Duration _timeLimit = const Duration(seconds: 30);
 
-  Future<http.Response> send(http.Request req) async {
+  Future<http.Response> send(http.BaseRequest req) async {
     return http.Response.fromStream(
         await _client.send(req).timeout(_timeLimit));
   }
@@ -30,7 +30,7 @@ class ApiClient {
     }
   }
 
-  Future<http.Request> _build(Request req) async {
+  Future<http.BaseRequest> _build(Request req) async {
     final Map<String, String> headers = await req.headers();
     final Map<String, String> query = await req.query();
     final Map<String, dynamic> body = await req.body();
